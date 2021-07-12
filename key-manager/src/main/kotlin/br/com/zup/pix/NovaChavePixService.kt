@@ -7,12 +7,12 @@ import javax.inject.Singleton
 import javax.transaction.Transactional
 
 @Singleton
-class NovaChavePixService(@Inject val contaClient: ContaClient,
+open class NovaChavePixService(@Inject val contaClient: ContaClient,
                           @Inject val chavePixRepository: ChavePixRepository) {
 
 
     @Transactional
-     fun registraChave(novaChave: NovaChave): ChavePix{
+     open fun registraChave(novaChave: NovaChave): ChavePix{
 
 
 
