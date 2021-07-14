@@ -15,6 +15,6 @@ jpa:
     properties:
       hibernate:
         hbm2ddl:
-          auto: update
+          auto: create
         show_sql: true
         format_sql: true

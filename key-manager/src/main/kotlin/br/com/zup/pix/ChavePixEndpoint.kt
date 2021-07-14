@@ -3,11 +3,13 @@ package br.com.zup.pix
 import br.com.zup.CadastraChavePixRequest
 import br.com.zup.CadastraChavePixResponse
 import br.com.zup.ChavePixServiceGrpc
+import br.com.zup.handlers.ErrorAroundHandler
 import io.grpc.stub.StreamObserver
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@ErrorAroundHandler
 class ChavePixEndpoint(private val contaService : NovaChavePixService)
     : ChavePixServiceGrpc.ChavePixServiceImplBase() {
 

@@ -5,24 +5,25 @@ import br.com.zup.TipoDaConta
 import br.com.zup.conta.ContaAssociada
 import java.time.LocalDateTime
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Id
-import java.util.UUID as UUID1
+import javax.persistence.*
+import java.util.UUID
 
 @Entity
-class ChavePix(val clientId: UUID1,
+class ChavePix(val clientId : UUID,
                @Enumerated(EnumType.STRING)
                val tipo: TipoChavePix,
                val chave: String?,
                @Enumerated(EnumType.STRING)
                val tipoDaconta: TipoDaConta,
+               //@ManyToOne(cascade= [CascadeType.PERSIST])
+               @Embedded
                val conta: ContaAssociada) {
 
     @Id
-    val id: UUID1? = null;
+    @GeneratedValue
+    val id: UUID? = null;
     val criadaEm : LocalDateTime = LocalDateTime.now()
+
 
     override fun toString(): String {
         return "ChavePix(clientId=$clientId, " +

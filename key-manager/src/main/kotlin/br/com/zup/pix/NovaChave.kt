@@ -5,12 +5,18 @@ import br.com.zup.TipoDaConta
 import br.com.zup.conta.ContaAssociada
 import io.micronaut.core.annotation.Introspected
 import java.util.*
+import javax.validation.constraints.NotBlank
 
 @Introspected
-data class NovaChave(val clientId :String?,
-                     val tipo : TipoChavePix?,
-                     val chave : String?,
-                     val tipoDaConta : TipoDaConta?) {
+data class NovaChave(
+    @field:NotBlank
+    val clientId :String?,
+    @field:NotBlank
+    val tipo : TipoChavePix?,
+    @field:NotBlank
+    val chave : String?,
+    @field:NotBlank
+    val tipoDaConta : TipoDaConta?) {
 
 
     fun toModel(conta: ContaAssociada): ChavePix{
