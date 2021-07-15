@@ -6,10 +6,11 @@ import br.com.zup.TipoDaConta
 
 fun CadastraChavePixRequest.toModel() : NovaChave {
 
-    return NovaChave(clientId = clientId,
+    return NovaChave(
+        clientId = clientId,
         tipo = when(tipoChavePix){
             TipoChavePix.CHAVE_DESCONHECIDA -> null
-            else -> TipoChavePix.valueOf(tipoChavePix.name)
+            else -> TipoDeChave.valueOf(tipoChavePix.name)
         },
         chave = chave,
         tipoDaConta = when(tipoDaConta) {

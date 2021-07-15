@@ -8,10 +8,11 @@ import java.util.*
 import javax.persistence.*
 import java.util.UUID
 
+
 @Entity
 class ChavePix(val clientId : UUID,
                @Enumerated(EnumType.STRING)
-               val tipo: TipoChavePix,
+               val tipo: TipoDeChave,
                val chave: String?,
                @Enumerated(EnumType.STRING)
                val tipoDaconta: TipoDaConta,

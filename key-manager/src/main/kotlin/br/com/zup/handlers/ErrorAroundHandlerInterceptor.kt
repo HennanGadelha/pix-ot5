@@ -26,9 +26,9 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                     .withCause(ex)
                     .withDescription(ex.message)
 
-                is ChavePixExistenteException -> Status.INVALID_ARGUMENT
+                is ChavePixExistenteException -> Status.ALREADY_EXISTS
                     .withCause(ex)
-                    .withDescription("Ja cadastrado")
+                    .withDescription("Chave pix já cadastrada")
 
 
                 else  -> Status.UNKNOWN
