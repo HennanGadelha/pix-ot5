@@ -44,6 +44,8 @@ dependencies {
 
     //implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator")
 
+    testImplementation("com.h2database:h2")
+    testImplementation("org.mockito:mockito-core")
 
 
 

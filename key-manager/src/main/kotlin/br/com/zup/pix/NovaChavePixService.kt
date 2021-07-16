@@ -2,6 +2,7 @@ package br.com.zup.pix
 
 import br.com.zup.handlers.ErrorAroundHandler
 import br.com.zup.handlers.exceptions.ChavePixExistenteException
+import br.com.zup.handlers.exceptions.ClienteNaoExistenteExistenteException
 import br.com.zup.servicoexterno.ContaClient
 import io.micronaut.validation.Validated
 import java.lang.IllegalStateException
@@ -28,7 +29,7 @@ import javax.validation.Valid
 
         val response = contaClient.consultarConta(novaChave.clientId!!, novaChave.tipoDaConta!!.name)
 
-        val conta = response.body()?.toModel() ?: throw IllegalStateException("Cliente nao encontrado")
+        val conta = response.body()?.toModel() ?: throw ClienteNaoExistenteExistenteException("Cliente nao encontrado")
 
         val chavePix = novaChave.toModel(conta)
 

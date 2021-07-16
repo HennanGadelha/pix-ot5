@@ -1,11 +1,13 @@
 package br.com.zup.handlers
 
 import br.com.zup.handlers.exceptions.ChavePixExistenteException
+import br.com.zup.handlers.exceptions.ClienteNaoExistenteExistenteException
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.aop.InterceptorBean
 import io.micronaut.aop.MethodInterceptor
 import io.micronaut.aop.MethodInvocationContext
+import java.lang.IllegalStateException
 import javax.inject.Singleton
 import javax.validation.ConstraintViolationException
 
@@ -30,6 +32,9 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                     .withCause(ex)
                     .withDescription("Chave pix já cadastrada")
 
+                is ClienteNaoExistenteExistenteException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription("Cliente nao encontrado")
 
                 else  -> Status.UNKNOWN
                     .withCause(ex)
