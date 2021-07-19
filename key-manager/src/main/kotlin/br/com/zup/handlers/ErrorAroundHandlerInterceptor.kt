@@ -1,5 +1,6 @@
 package br.com.zup.handlers
 
+import br.com.zup.handlers.exceptions.ChaveNaoEncontradaException
 import br.com.zup.handlers.exceptions.ChavePixExistenteException
 import br.com.zup.handlers.exceptions.ClienteNaoExistenteExistenteException
 import io.grpc.Status
@@ -31,6 +32,10 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                 is ChavePixExistenteException -> Status.ALREADY_EXISTS
                     .withCause(ex)
                     .withDescription("Chave pix já cadastrada")
+
+                is ChaveNaoEncontradaException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription("Chave pix nao encontrado ou nao pertence ao cliente")
 
                 is ClienteNaoExistenteExistenteException -> Status.NOT_FOUND
                     .withCause(ex)
