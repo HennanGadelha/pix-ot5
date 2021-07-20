@@ -2,7 +2,10 @@ package br.com.zup.pix.remove
 
 import br.com.zup.handlers.exceptions.ChaveNaoEncontradaException
 import br.com.zup.pix.ChavePixRepository
+import br.com.zup.servicoexterno.bacen.BacenClient
+import br.com.zup.servicoexterno.bacen.DeletePixKeyRequest
 import io.micronaut.validation.Validated
+import org.slf4j.LoggerFactory
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -11,8 +14,11 @@ import javax.validation.constraints.NotBlank
 
 @Validated
 @Singleton
-class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository) {
+class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository,
+                            @Inject val bacenClient: BacenClient) {
 
+
+    val logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
     fun removeChavePix(@NotBlank clientId: String?, @NotBlank pixId: String?){
@@ -22,9 +28,19 @@ class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository) 
 
         val existeChave = chavePixRepository.existsByIdAndClientId(uuidPixId, uuidClientId)
 
-       if(!existeChave)  throw ChaveNaoEncontradaException("Chave pix nao encontrado ou nao pertence ao cliente")
+        if(!existeChave)  throw ChaveNaoEncontradaException("Chave pix nao encontrado ou nao pertence ao cliente")
 
         chavePixRepository.deleteById(uuidPixId)
+
+
+        //buscando chave pix para delecao no bacen
+        val chavePix = chavePixRepository.findById(uuidPixId).get()
+
+        val valorDaChavePix = chavePix.chave.toString()
+
+        val request = DeletePixKeyRequest(valorDaChavePix)
+
+        val response = bacenClient.deletarChavePix(valorDaChavePix, request)
 
     }
 

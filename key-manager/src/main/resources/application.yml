@@ -18,3 +18,13 @@ jpa:
           auto: update
         show_sql: true
         format_sql: true
+
+
+erp-itau:
+  pix:
+    url: 'http://localhost:9091/'
+
+
+bacen:
+  pix:
+    url: 'http://localhost:8082/api'

@@ -13,7 +13,7 @@ import java.util.UUID
 class ChavePix(val clientId : UUID,
                @Enumerated(EnumType.STRING)
                val tipo: TipoDeChave,
-               val chave: String?,
+               var chave: String?,
                @Enumerated(EnumType.STRING)
                val tipoDaconta: TipoDaConta,
                //@ManyToOne(cascade= [CascadeType.PERSIST])

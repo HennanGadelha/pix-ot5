@@ -7,7 +7,7 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
 
-@Client("http://localhost:9091/")
+@Client("\${erp-itau.pix.url}")
 interface ContaClient {
 
     @Get("api/v1/clientes/{clienteId}/contas{?tipo}")
