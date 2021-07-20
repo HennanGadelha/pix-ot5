@@ -4,8 +4,9 @@ import br.com.zup.handlers.exceptions.ChaveNaoEncontradaException
 import br.com.zup.pix.ChavePixRepository
 import br.com.zup.servicoexterno.bacen.BacenClient
 import br.com.zup.servicoexterno.bacen.DeletePixKeyRequest
+import io.micronaut.http.HttpStatus
 import io.micronaut.validation.Validated
-import org.slf4j.LoggerFactory
+import java.lang.IllegalStateException
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,8 +18,6 @@ import javax.validation.constraints.NotBlank
 class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository,
                             @Inject val bacenClient: BacenClient) {
 
-
-    val logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
     fun removeChavePix(@NotBlank clientId: String?, @NotBlank pixId: String?){
@@ -32,7 +31,7 @@ class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository,
 
         chavePixRepository.deleteById(uuidPixId)
 
-
+        
         //buscando chave pix para delecao no bacen
         val chavePix = chavePixRepository.findById(uuidPixId).get()
 
@@ -41,6 +40,9 @@ class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository,
         val request = DeletePixKeyRequest(valorDaChavePix)
 
         val response = bacenClient.deletarChavePix(valorDaChavePix, request)
+
+        if(response.status != HttpStatus.OK)
+            throw IllegalStateException("Erro ao remover chave no bacen")
 
     }
 
