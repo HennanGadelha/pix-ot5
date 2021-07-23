@@ -23,6 +23,33 @@ service CarregaChavePixService{
 
 }
 
+
+//listando chaves
+
+service ListarChavePixService{
+  rpc listar(ListarChavesPixRequest) returns(ListarChavesPixResponse);
+}
+
+message ListarChavesPixRequest{
+  string clientId =1;
+}
+
+message ListarChavesPixResponse{
+
+  message ChavePix{
+
+    string pixId =1;
+    TipoChavePix tipoDaChave =2;
+    string chave = 3;
+    TipoDaConta tipoDaConta =4;
+    google.protobuf.Timestamp  criadaEm =5;
+  }
+
+  string clientId =1;
+  repeated ChavePix chaves =2;
+
+}
+
 message CarregaChavePixRequest{
 
   message FiltroPorPixid{
