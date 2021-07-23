@@ -41,9 +41,13 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                     .withCause(ex)
                     .withDescription("Cliente nao encontrado")
 
-                else  -> Status.UNKNOWN
+                else  ->
+                {
+                    println(ex)
+                    println(ex.message)
+                    Status.UNKNOWN
                     .withCause(ex)
-                    .withDescription("Erro inesperado")
+                    .withDescription("Erro inesperado")}
 
             }
 

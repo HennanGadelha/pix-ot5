@@ -8,6 +8,7 @@ import br.com.zup.conta.ContaAssociada
 import br.com.zup.conta.ContaResponse
 import br.com.zup.instituicao.InstituicaoResponse
 import br.com.zup.servicoexterno.ContaClient
+import br.com.zup.servicoexterno.bacen.*
 import br.com.zup.titular.TitularResponse
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -23,10 +24,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @MicronautTest(transactional = false)
 internal class NovaChavePixServiceTest(
@@ -37,6 +38,9 @@ internal class NovaChavePixServiceTest(
     @Inject
     lateinit var itauClient: ContaClient
 
+    @Inject
+    lateinit var bacenClient: BacenClient
+
     companion object {
         val CLIENT_ID = UUID.randomUUID()
     }
@@ -46,6 +50,7 @@ internal class NovaChavePixServiceTest(
         chavePixRepository.deleteAll()
     }
 
+
     @Test
     fun `deve registrar nova chave pix`() {
 
@@ -53,6 +58,9 @@ internal class NovaChavePixServiceTest(
         Mockito.`when`(itauClient.consultarConta(clienteId = CLIENT_ID.toString(), tipo = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
+
+        Mockito.`when`(bacenClient.criarChavePix(createPixKeyRequest()))
+            .thenReturn(HttpResponse.created(createPixKeyResponse()))
 
         val response = grpcClient.cadastrar(
             CadastraChavePixRequest.newBuilder()
@@ -62,6 +70,7 @@ internal class NovaChavePixServiceTest(
                 .setTipoDaConta(TipoDaConta.CONTA_CORRENTE)
                 .build()
         )
+
 
 
         with(response) {
@@ -147,6 +156,67 @@ internal class NovaChavePixServiceTest(
 
     }
 
+    @Test
+    fun `nao deve cadastrar chave pix caso tambem nao cadastre no bacen`(){
+
+        Mockito.`when`(itauClient.consultarConta(clienteId = CLIENT_ID.toString(), tipo = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+
+        Mockito.`when`(bacenClient.criarChavePix(createPixKeyRequest()))
+            .thenReturn(HttpResponse.badRequest())
+
+        val response = assertThrows<StatusRuntimeException> { grpcClient.cadastrar(
+            CadastraChavePixRequest.newBuilder()
+                .setClientId(CLIENT_ID.toString())
+                .setTipoChavePix(TipoChavePix.EMAIL)
+                .setChave("hennanteste@gmail.com")
+                .setTipoDaConta(TipoDaConta.CONTA_CORRENTE)
+                .build()
+        )}
+
+        with(response) {
+            assertEquals(Status.UNKNOWN.code, status.code)
+        }
+
+    }
+
+
+    private fun createPixKeyRequest(): CreatePixKeyRequest {
+        return CreatePixKeyRequest(
+            keyType = PixKeyType.EMAIL,
+            key = "hennanteste@gmail.com",
+            bankAccount = bankAccount(),
+            owner = owner()
+        )
+    }
+
+    private fun bankAccount(): BankAccount {
+        return BankAccount(
+            participant = ContaAssociada.ITAU_UNIBANCO_ISPB,
+            branch = "04055",
+            accountNumber = "1234",
+            accountType = BankAccount.AccountType.CACC
+        )
+    }
+
+    private fun owner(): Owner {
+        return Owner(
+            type = Owner.OwnerType.NATURAL_PERSON,
+            name = "Hennan",
+            taxIdNumber = "87006987091"
+        )
+    }
+
+    private fun createPixKeyResponse(): CreatePixKeyResponse {
+        return CreatePixKeyResponse(
+            keyType = PixKeyType.EMAIL,
+            key = "hennantestes@mail.com",
+            bankAccount = bankAccount(),
+            owner = owner(),
+            createdAt = LocalDateTime.now()
+        )
+    }
+
 
     @Factory
     class Clients {
@@ -159,6 +229,11 @@ internal class NovaChavePixServiceTest(
         }
     }
 
+    @MockBean(BacenClient::class)
+    fun bacenClient(): BacenClient? {
+        return Mockito.mock(BacenClient::class.java)
+    }
+
     @MockBean(ContaClient::class)
     fun itauClient(): ContaClient? {
         return Mockito.mock(ContaClient::class.java)
@@ -168,7 +243,7 @@ internal class NovaChavePixServiceTest(
 
         return ContaResponse(
             tipo = "CONTA_CORRENTE",
-            instituicao = InstituicaoResponse(nome = "UNIBANCO ITAU SA", "123456"),
+            instituicao = InstituicaoResponse(nome = "UNIBANCO ITAU SA", ContaAssociada.ITAU_UNIBANCO_ISPB),
             agencia = "04055",
             numero = "1234",
             titular = TitularResponse(CLIENT_ID.toString(), nome = "hennan", cpf = "87006987091")

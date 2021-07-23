@@ -10,7 +10,6 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.validation.Validated
 import org.slf4j.LoggerFactory
 import java.lang.IllegalStateException
-import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.transaction.Transactional
@@ -43,7 +42,6 @@ import javax.validation.Valid
 
 
 
-
         val bcbRequest = CreatePixKeyRequest.of(chavePix).also {
             logger.info("Regsitrando nova chave pix")
         }
@@ -54,14 +52,13 @@ import javax.validation.Valid
             throw IllegalStateException("Erro ao registrar chave pix no bacen")
 
         chavePix.chave = bcbResponse.body()!!.key
-        //salvando no postgree
+
+
         chavePixRepository.save(chavePix)
 
-
-        println(chavePix)
+        println(chavePix.id)
 
         return  chavePix
-
 
     }
 

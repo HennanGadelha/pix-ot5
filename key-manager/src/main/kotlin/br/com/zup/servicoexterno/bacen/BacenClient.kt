@@ -4,6 +4,7 @@ import br.com.zup.TipoDaConta
 import br.com.zup.conta.ContaAssociada
 import br.com.zup.pix.ChavePix
 import br.com.zup.pix.TipoDeChave
+import br.com.zup.pix.carrega.DetalhesChavePix
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
@@ -24,7 +25,41 @@ interface BacenClient {
     @Consumes(MediaType.APPLICATION_XML)
     fun deletarChavePix(@PathVariable key: String, @Body deletePixKeyrequest: DeletePixKeyRequest): HttpResponse<Any>
 
+    @Get("/v1/pix/keys/{key}")
+    @Consumes(MediaType.APPLICATION_XML)
+    fun buscarChavePix(@PathVariable key: String): HttpResponse<PixKeyDetailsResponse>
+
+
 }
+
+data class PixKeyDetailsResponse(
+    val keyType: PixKeyType,
+    val key: String,
+    val bankAccount: BankAccount,
+    val owner: Owner,
+    val createdAt: LocalDateTime
+) {
+
+    fun toModel(): DetalhesChavePix {
+        return DetalhesChavePix(
+            tipo = keyType.domainType!!,
+            chave = this.key,
+            tipoDeConta = when (this.bankAccount.accountType) {
+                BankAccount.AccountType.CACC -> TipoDaConta.CONTA_CORRENTE
+                BankAccount.AccountType.SVGS -> TipoDaConta.CONTA_POUPANCA
+            },
+            conta = ContaAssociada(
+                instituicao = bankAccount.participant,
+                nomeDoTitular = owner.name,
+                cpfDotitular = owner.taxIdNumber,
+                agencia = bankAccount.branch,
+                numeroDaConta = bankAccount.accountNumber
+            ),
+            registradaEm = LocalDateTime.now()
+        )
+    }
+}
+
 
 data class DeletePixKeyRequest(
     val key: String,
@@ -66,7 +101,7 @@ data class CreatePixKeyRequest(
     }
 }
 
-data class CreatePixKeyResponse (
+data class CreatePixKeyResponse(
     val keyType: PixKeyType,
     val key: String,
     val bankAccount: BankAccount,
@@ -132,7 +167,8 @@ enum class PixKeyType(val domainType: TipoDeChave?) {
         private val mapping = PixKeyType.values().associateBy(PixKeyType::domainType)
 
         fun by(domainType: TipoDeChave): PixKeyType {
-            return  mapping[domainType] ?: throw IllegalArgumentException("PixKeyType invalid or not found for $domainType")
+            return mapping[domainType]
+                ?: throw IllegalArgumentException("PixKeyType invalid or not found for $domainType")
         }
     }
 }

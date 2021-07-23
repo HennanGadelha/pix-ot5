@@ -36,5 +36,9 @@ class ChavePix(val clientId : UUID,
                 "criadaEm=$criadaEm)"
     }
 
+    fun pertenceAo(clienteId: String) : Boolean{
+        return this.clientId == clientId
+    }
+
 
 }

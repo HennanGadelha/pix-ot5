@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull
 
 @ValidPixKey
 @Introspected
-data class NovaChave(
+ data class NovaChave(
     @field:NotBlank
     val clientId :String?,
     @field:NotBlank
@@ -33,5 +33,6 @@ data class NovaChave(
             conta = conta)
 
     }
+
 
 }
